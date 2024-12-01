@@ -34,8 +34,8 @@
 
                 <h5 class="mt-4">Product Description</h5>
                 <p th:text="${product.description}">
-
-                    <!-- Price and Discount -->
+                <p id="stockQuantityDetail" style="font-weight: bold">Stock quantity: </p>
+                <!-- Price and Discount -->
                 <p class="product-price" id="product-price" th:text="${product.price}"></p>
 
                 <!-- Size Chart -->
@@ -44,12 +44,11 @@
                     <div th:each="detail : ${productDetail}">
                         <button type="button" class="size-box"
                                 th:text="${detail.size.sizeValue}"
-                                th:value="${detail.productDetailID}">
-
+                                th:value="${detail.productDetailID}"
+                                th:data-stock-quantity="${detail.stockQuantity}">
+                            <!-- Thêm thuộc tính data-stock-quantity -->
                         </button>
                         <input type="hidden" name="productDetailID" id="productDetailID"/>
-
-
                     </div>
                     <input type="hidden" name="subTotal" id="subTotal"/>
 
@@ -73,7 +72,6 @@
         </form>
     </div>
     <!-- Description and Reviews Tabs -->
-
 
 
     <div class="related-products">
@@ -227,6 +225,23 @@
         <button class="related-products__button related-products__button--next" onclick="scrollProducts('next')"><i
                 class="fas fa-chevron-right"></i></button>
     </div>
+    <div id="quantityAlertModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notification</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="quantityAlertMessage">The quantity of the product you selected exceeds the quantity in
+                        stock.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -246,19 +261,21 @@
         const increaseBtn = document.getElementById("increase");
         const quantityDisplay = document.getElementById("quantity-display");
         const quantityInput = document.getElementById("quantity-input");
-        const subTotalInput = document.getElementById('subTotal');
-        const productPrice = document.getElementById('product-price').value;
+        const stockQuantityDetail = document.getElementById('stockQuantityDetail');
+
         // Lắng nghe sự kiện click của các nút size
         sizeButtons.forEach(button => {
             button.addEventListener('click', function () {
                 // Cập nhật giá trị productDetailID vào input ẩn
                 productDetailIDInput.value = this.value;
-                // Đổi màu nút đã chọn (thêm class active)
-                sizeButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+
+                // Cập nhật thông tin số lượng tồn kho vào #stockQuantityDetail
+                const stockQuantity = this.getAttribute('data-stock-quantity'); // Lấy số lượng tồn kho từ thuộc tính data
+                stockQuantityDetail.textContent = `Stock quantity: ${stockQuantity}`; // Cập nhật số lượng tồn kho
             });
         });
 
+        // Xử lý tăng giảm số lượng
         const updateQuantity = (value) => {
             if (value < 1) value = 1; // Không cho giá trị nhỏ hơn 1
             quantityDisplay.textContent = value; // Cập nhật giá trị trong <span>
@@ -286,30 +303,38 @@
             } else {
                 document.getElementById('productDetailForm').submit();
             }
-
         });
-        const buttonBuyNow=document.querySelector('.btn-buy-now')
-        buttonBuyNow.addEventListener('click',function (event) {
-            const productDetailId=document.getElementById("productDetailID").value
-            const price=document.getElementById("product-price").textContent
-            const quantity=document.getElementById("quantity-input").value
-            console.log(productDetailId)
-            console.log(price)
-            console.log(quantity)
 
-            const url = "/checkoutFromProductDetail"; // Thay URL theo controller của bạn
-            const queryParams = new URLSearchParams();
-            queryParams.append("productDetailId", parseInt(productDetailId));
-            queryParams.append("quantity", parseInt(quantity));
-            queryParams.append("price", parseInt(price));
-            if(productDetailId===""){
+        // Đoạn code xử lý nút Buy Now
+        const buttonBuyNow = document.querySelector('.btn-buy-now');
+        buttonBuyNow.addEventListener('click', function (event) {
+            const productDetailId = document.getElementById("productDetailID").value;
+            const price = document.getElementById("product-price").textContent;
+            const quantity = parseInt(document.getElementById("quantity-input").value, 10);
+            const selectedSizeButton = document.querySelector('.size-box.active');
+            const stockQuantity = selectedSizeButton ? parseInt(selectedSizeButton.getAttribute('data-stock-quantity')) : 0;
+
+            if (!productDetailId) {
                 alert("Vui lòng chọn sản phẩm trước khi thêm vào giỏ hàng!");
                 return;
             }
-            console.log(`${url}?${queryParams.toString()}`)
-            window.location.href = `${url}?${queryParams.toString()}`;
-        })
+
+            // Kiểm tra nếu số lượng chọn lớn hơn số lượng tồn kho
+            if (quantity > stockQuantity) {
+                // Hiển thị modal cảnh báo số lượng vượt quá tồn kho
+                $('#quantityAlertModal').modal('show');
+            } else {
+                const url = "/checkoutFromProductDetail"; // Thay URL theo controller của bạn
+                const queryParams = new URLSearchParams();
+                queryParams.append("productDetailId", parseInt(productDetailId));
+                queryParams.append("quantity", quantity);
+                queryParams.append("price", parseInt(price));
+
+                window.location.href = `${url}?${queryParams.toString()}`;
+            }
+        });
     });
+
 </script>
 
 </body>

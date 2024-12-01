@@ -44,7 +44,8 @@
 
                 </p>
                 <div class="cart-item__options">
-                    <span style="font-weight: bold" th:text="${cartItem.size.sizeValue}"></span>
+                    <span class="cart-item__size" style="font-weight: bold" th:text="${cartItem.size.sizeValue}"
+                          th:data-stock-quantity="${cartItem.stockQuantity}"></span>
                     <span th:text="${cartItem.color.colorName}"></span>
 
                     <div class="cart-item__quantity">
@@ -132,6 +133,9 @@
     let cartItems;
 
     document.addEventListener("DOMContentLoaded", function () {
+
+
+
         cartItems = document.querySelectorAll(".cart-item");  // Lấy tất cả các phần tử giỏ hàng
         const subtotalElement = document.getElementById("subtotal");
         let subtotal = 0;  // Biến lưu tổng các sản phẩm được chọn
