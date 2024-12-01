@@ -84,14 +84,6 @@ public class OrderController {
         return ResponseEntity.ok(stats);
     }
 
-
-    // Tính tổng tiền cho đơn hàng
-    private double calculateTotalPrice(Order order) {
-        return order.getOrderDetails().stream()
-                .mapToDouble(od -> od.getQuantity() * od.getPrice())
-                .sum();
-    }
-
     @GetMapping("/dsachOrders")
     public List<Map<String, Object>> getAllOrders() {
         // Lấy danh sách đơn hàng với chi tiết sản phẩm đã được tải
@@ -103,7 +95,7 @@ public class OrderController {
                     map.put("orderID", order.getOrderID());
                     map.put("dateCreated", order.getOrderDate());
                     map.put("name", order.getUser().getName());
-                    map.put("totalPrice", calculateTotalPrice(order));
+                    map.put("totalPrice", order.getTotal());
                     map.put("status", order.getStatus());
                     return map;
                 })
@@ -142,5 +134,28 @@ public class OrderController {
         return orderService.getOrderStatistics();
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Map<String, Object>>> getOrdersByUserId(@PathVariable("userId") int userId) {
+        try {
+            List<Order> orders = orderService.findByUserId(userId);
+            List<Map<String, Object>> result = orders.stream()
+                    .map(order -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("orderID", order.getOrderID());
+                        map.put("dateCreated", order.getOrderDate());
+                        map.put("name", order.getUser().getName());
+                        map.put("totalPrice", order.getTotal());
+                        map.put("status", order.getStatus());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+            System.out.println(orders);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 
 }
