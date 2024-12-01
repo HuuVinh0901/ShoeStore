@@ -367,7 +367,7 @@ html {
   align-items: center;
   gap: 0; /* Xóa khoảng cách giữa các item */
   /* background-color: #0047ab; Nền xanh */
-  height: 200px; /* Cố định chiều cao */
+  height: 250px; /* Cố định chiều cao */
 }
 
 /* Ô chứa logo */
