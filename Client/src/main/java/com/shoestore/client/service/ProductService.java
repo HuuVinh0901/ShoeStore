@@ -20,6 +20,6 @@ public interface ProductService {
     public List<ProductHomeDTO> getTop10NewArrivals();
 
     public List<ProductHomeDTO> getTop10Trending();
-    List<ProductDTO> getFilteredProducts(List<Integer> category, List<Integer> brand, List<String> color, List<String> size, Double minPrice, Double maxPrice, String sortBy);
+    List<ProductDTO> getFilteredProducts(List<Integer> category, List<Integer> brand, List<String> color, List<String> size,String sortBy);
 
 }

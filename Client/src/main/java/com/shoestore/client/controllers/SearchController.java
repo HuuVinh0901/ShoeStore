@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,39 +32,31 @@ public class SearchController {
             @RequestParam(required = false) List<Integer> brandIds,     // List brand IDs
             @RequestParam(required = false) List<String> colors,         // List colors
             @RequestParam(required = false) List<String> sizes,          // List sizes
-            @RequestParam(required = false) String  price,
+//            @RequestParam(required = false) String  price,
             @RequestParam(required = false) String  sortBy,
             Model model) {
-        Double minPrice = null;
-        Double maxPrice = null;
-        if (price != null) {
-            switch (price) {
-                case "under50":
-                    minPrice = 0.0;
-                    maxPrice = 50.0;
-                    break;
-                case "50-100":
-                    minPrice = 50.0;
-                    maxPrice = 100.0;
-                    break;
-                case "100-150":
-                    minPrice = 100.0;
-                    maxPrice = 150.0;
-                    break;
-                case "150-200":
-                    minPrice = 150.0;
-                    maxPrice = 200.0;
-                    break;
-                case "200-300":
-                    minPrice = 200.0;
-                    maxPrice = 300.0;
-                    break;
-                case "over300":
-                    minPrice = 300.0;
-                    maxPrice = Double.MAX_VALUE;  // Không giới hạn maxPrice
-                    break;
-            }
-        }
+//        Double minPrice = null;
+//        Double maxPrice = null;
+//        if (price != null) {
+//            switch (price) {
+//                case "under500":
+//                    minPrice = 0.0;
+//                    maxPrice = 500000.0;
+//                    break;
+//                case "500-1000":
+//                    minPrice = 500000.0;
+//                    maxPrice = 1000000.0;
+//                    break;
+//                case "1000-2000":
+//                    minPrice = 10000000.0;
+//                    maxPrice = 20000000.0;
+//                    break;
+//                case "over2000":
+//                    minPrice = 20000000.0;
+//                    maxPrice = Double.MAX_VALUE;  // Không giới hạn maxPrice
+//                    break;
+//            }
+//        }
 
         List<ProductDTO> products;
 
@@ -71,14 +64,14 @@ public class SearchController {
         if ((categoryIds == null || categoryIds.isEmpty()) &&
                 (brandIds == null || brandIds.isEmpty()) &&
                 (colors == null || colors.isEmpty()) &&
-                (sizes == null || sizes.isEmpty()) &&
-                minPrice == null && maxPrice == null && sortBy ==null)
+                (sizes == null || sizes.isEmpty())
+               && sortBy ==null)
         {
             // Nếu không có filter, lấy toàn bộ sản phẩm
             products = productService.getAllProduct();
         } else {
             // Nếu có filter, gọi service để lấy sản phẩm theo filters
-            products = productService.getFilteredProducts(categoryIds, brandIds, colors, sizes, minPrice, maxPrice,sortBy);
+            products = productService.getFilteredProducts(categoryIds, brandIds, colors, sizes,sortBy);
 
         }
         System.out.println(products);
@@ -96,6 +89,7 @@ public class SearchController {
         model.addAttribute("sizes", size);
         ColorDTO[] color = ColorDTO.values();
         model.addAttribute("colors", color);
+
 
         return "page/Customer/SearchFragment";
     }

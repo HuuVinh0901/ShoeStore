@@ -56,14 +56,20 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItem updateQuantity(CartItemKey id, CartItem cartItem) {
         Optional<CartItem> existCartItem= cartItemRepository.findById(id);
         if(existCartItem.isPresent()){
-            CartItem cartItemUpdate=new CartItem();
-            cartItemUpdate.setQuantity(cartItem.getQuantity());
+            CartItem entityCartItem=existCartItem.get();
 
-            return cartItemRepository.save(cartItemUpdate);
+            entityCartItem.setQuantity(cartItem.getQuantity());
+            entityCartItem.setCart(cartItem.getCart());
+            entityCartItem.setProductDetail(cartItem.getProductDetail());
+            return cartItemRepository.save(entityCartItem);
         }
         return null;
     }
 
+    @Override
+    public void deleteCartItem(CartItemKey id) {
+        cartItemRepository.deleteById(id);
+    }
 
 
 }

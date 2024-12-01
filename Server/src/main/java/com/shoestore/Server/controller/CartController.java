@@ -23,17 +23,27 @@ private final ProductDetailService productDetailService;
       this.cartService = cartService1;
       this.productDetailService = productDetailService;
   }
-  @PutMapping("/update-quantity/{cartId}/{productDetailId}")
+  @PutMapping("/update/{cartId}/{productDetailId}")
   public ResponseEntity<CartItem> updateCartItem(@PathVariable("cartId") int cartId,
                                                  @PathVariable("productDetailId") int productDetailId,
-                                                 @RequestBody CartItem cartItem) {
+                                                @RequestBody CartItem cartItem) {
     CartItemKey cartItemKey = new CartItemKey(cartId, productDetailId);
     CartItem cartItemUpdate= cartItemService.updateQuantity(cartItemKey,cartItem);
+    System.out.println(cartItemUpdate);
     if (cartItemUpdate != null) {
       return ResponseEntity.ok(cartItemUpdate);  // Trả về voucher đã được cập nhật
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Nếu không tìm thấy voucher
     }
+  }
+  @DeleteMapping("/delete/{cartId}/{productDetailId}")
+  public ResponseEntity<String> deleteVoucher(@PathVariable("cartId") int cartId,
+                                              @PathVariable("productDetailId") int productDetailId) {
+    System.out.println(cartId);
+    CartItemKey cartItemKey = new CartItemKey(cartId, productDetailId);
+    cartItemService.deleteCartItem(cartItemKey);
+    System.out.println("CarItem deleted  : ");
+    return ResponseEntity.ok("CarItem deleted");
   }
   @GetMapping("/{cartId}/{productDetailId}")
   public ResponseEntity<CartItem> getCartItemById(@PathVariable("cartId") int cartId,

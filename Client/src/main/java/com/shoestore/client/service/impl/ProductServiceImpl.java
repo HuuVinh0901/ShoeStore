@@ -61,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductDTO> getFilteredProducts(List<Integer> categoryIds, List<Integer> brandIds, List<String> color, List<String> size, Double minPrice, Double maxPrice, String sortBy) {
+    public List<ProductDTO> getFilteredProducts(List<Integer> categoryIds, List<Integer> brandIds, List<String> color, List<String> size,String sortBy) {
         StringBuilder apiUrl = new StringBuilder("http://localhost:8080/products/filtered");
 
         // Thêm các tham số vào URL nếu không null
@@ -85,13 +85,6 @@ public class ProductServiceImpl implements ProductService {
             apiUrl.append(hasParam ? "&" : "?").append("size=")
                     .append(String.join(",", size));
             hasParam = true;
-        }
-        if (minPrice != null) {
-            apiUrl.append(hasParam ? "&" : "?").append("minPrice=").append(minPrice);
-            hasParam = true;
-        }
-        if (maxPrice != null) {
-            apiUrl.append(hasParam ? "&" : "?").append("maxPrice=").append(maxPrice);
         }
         if (sortBy != null) {
             try {

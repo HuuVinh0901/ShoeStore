@@ -9,6 +9,7 @@ import com.shoestore.client.dto.response.OrderDetailDTO;
 import com.shoestore.client.dto.response.OrderDetailResponeDTO;
 import com.shoestore.client.dto.response.ProductDetailCheckoutDTO;
 import com.shoestore.client.service.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,9 +43,7 @@ public class CheckoutController {
     @Autowired
     private PaymentService paymentService;
     @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private BrandService brandService;
+    private ReceiptService receiptService;
     @Autowired
     private HttpSession session;
 
@@ -86,7 +85,7 @@ public class CheckoutController {
                     ProductDetailDTO productDetail = productDetailService.getProductDetailById(productDetailsId);
                     ProductDTO productDTO = productService.getProductByProductDetail(productDetailsId);
                     // Tạo DTO chứa thông tin cần thiết
-                    return new ProductDetailCheckoutDTO(productDetail, quantity, productDTO.getProductName(), productDTO.getImageURL(), productDTO.getPrice());
+                    return new ProductDetailCheckoutDTO(productDetail, quantity, productDTO.getProductName(), productDTO.getImageURL(), productDTO.getPrice(),productDTO.getProductID());
                 })
                 .toList();
         DecimalFormat formatter = new DecimalFormat("#,###.##");
@@ -131,6 +130,7 @@ public class CheckoutController {
         productDetailCheckoutDTO.setName(productDTO.getProductName());
         productDetailCheckoutDTO.setImage(productDTO.getImageURL());
         productDetailCheckoutDTO.setQuantity(quantities);
+productDetailCheckoutDTO.setProductId(productDTO.getProductID());
         List<ProductDetailCheckoutDTO> productDetailCheckoutDTOS = new ArrayList<>();
         productDetailCheckoutDTOS.add(productDetailCheckoutDTO);
 
@@ -174,7 +174,8 @@ public class CheckoutController {
         Integer address = (Integer) payload.get("address");
         Integer total = (Integer) payload.get("total");
         Integer delivery = (Integer) payload.get("delivery");
-
+        Integer paymentCase= (Integer) payload.get("paymentCase");
+        System.out.println(paymentCase);
         // Lấy productDetails (mảng sản phẩm) từ request body
         List<Map<String, Object>> productDetails = (List<Map<String, Object>>) payload.get("productDetails");
 
@@ -221,11 +222,22 @@ public class CheckoutController {
 
         }
         PaymentDTO paymentDTO = new PaymentDTO();
-        paymentDTO.setStatus("Pending");
+        ReceiptDTO receiptDTO=new ReceiptDTO();
+        if(paymentCase==1){
+            paymentDTO.setStatus("Completed");
+
+        }
+        else{
+            paymentDTO.setStatus("Pending");
+        }
         paymentDTO.setPaymentDate(LocalDate.now());
         paymentDTO.setOrder(orderSave);
         System.out.println("Payment gui:"+paymentDTO);
         PaymentDTO paymentSave = paymentService.addPayment(paymentDTO);
+        receiptDTO.setPayment(paymentSave);
+        receiptDTO.setReceiptDate(LocalDate.now());
+        receiptDTO.setTotal(total);
+        ReceiptDTO receiptSave= receiptService.addReceipt(receiptDTO);
         // Xử lý dữ liệu ở đây và trả về phản hồi
         return "redirect:/login";
     }

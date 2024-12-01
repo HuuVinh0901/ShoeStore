@@ -14,12 +14,14 @@ public class ProductDetailCheckoutDTO {
     private String name;
     private List<String> image;
     private double price;
+    private int productId;
 
-    public ProductDetailCheckoutDTO(ProductDetailDTO productDetailDTO, int quantity, String name, List<String> image, double price) {
+    public ProductDetailCheckoutDTO(ProductDetailDTO productDetailDTO, int quantity, String name, List<String> image, double price, int productId) {
         this.productDetailDTO = productDetailDTO;
         this.quantity = quantity;
         this.name = name;
         this.image = image;
         this.price = price;
+        this.productId = productId;
     }
 }
